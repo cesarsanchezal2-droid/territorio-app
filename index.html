@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Territorio App — Sección 1575</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: #f5f5f5; }
+
+    #header {
+      background: #1a1a2e;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      height: 48px;
+    }
+    #header h1 { font-size: 15px; font-weight: 500; margin: 0; }
+    #gps-status {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: #333;
+      color: #aaa;
+      white-space: nowrap;
+    }
+    #gps-status.activo { background: #1D9E75; color: white; }
+    #gps-status.error { background: #c0392b; color: white; }
+
+    #mapa {
+      width: 100%;
+      height: calc(100vh - 48px);
+      margin-top: 48px;
+    }
+
+    /* ── PANEL FORMULARIO ── */
+    #panel {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      z-index: 2000;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    #panel.visible { display: block; }
+
+    .panel-handle {
+      width: 36px;
+      height: 4px;
+      background: #ddd;
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+    .panel-header {
+      padding: 12px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-header h2 {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+    .panel-header button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .panel-coords {
+      font-size: 11px;
+      color: #999;
+      padding: 2px 20px 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .seccion-form { padding: 0 20px; }
+    .seccion-titulo {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+      margin: 16px 0 8px;
+    }
+    .pregunta { margin-bottom: 14px; }
+    .pregunta label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a2e;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .opciones { display: flex; flex-direction: column; gap: 6px; }
+    .opcion {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8f8f8;
+      border: 1.5px solid #eee;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .opcion input[type="radio"],
+    .opcion input[type="checkbox"] {
+      accent-color: #1D9E75;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .opcion:has(input:checked) {
+      background: #e8f7f2;
+      border-color: #1D9E75;
+      color: #1a1a2e;
+      font-weight: 500;
+    }
+    textarea {
+      width: 100%;
+      border: 1.5px solid #eee;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: sans-serif;
+      resize: none;
+      background: #f8f8f8;
+      color: #444;
+      box-sizing: border-box;
+    }
+    textarea:focus { outline: none; border-color: #1D9E75; }
+
+    .btn-guardar {
+      width: calc(100% - 40px);
+      margin: 16px 20px 24px;
+      padding: 14px;
+      background: #1D9E75;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-guardar:active { background: #178a64; }
+
+    /* ── CONTADOR DE VISITAS ── */
+    #contador {
+      position: fixed;
+      bottom: 20px;
+      right: 16px;
+      background: #1a1a2e;
+      color: white;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 13px;
+      z-index: 1500;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* ── INSTRUCCION ── */
+    #instruccion {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(26,26,46,0.85);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      z-index: 1500;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <h1>Territorio App · Sección 1575</h1>
+    <span id="gps-status">GPS...</span>
+  </div>
+
+  <div id="mapa"></div>
+
+  <div id="instruccion">Toca el mapa para registrar una visita</div>
+
+  <div id="contador">0 visitas</div>
+
+  <!-- ── PANEL FORMULARIO ── -->
+  <div id="panel">
+    <div class="panel-handle"></div>
+    <div class="panel-header">
+      <h2>Registrar visita</h2>
+      <button onclick="cerrarPanel()">✕</button>
+    </div>
+    <div class="panel-coords" id="panel-coords"></div>
+
+    <div class="seccion-form">
+
+      <p class="seccion-titulo">Servicios básicos</p>
+
+      <div class="pregunta">
+        <label>¿Cómo califica el servicio de agua potable?</label>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="agua" value="bueno"> Buena — llega constante</label>
+          <label class="opcion"><input type="radio" name="agua" value="regular"> Regular — a veces falla</label>
+          <label class="opcion"><input type="radio" name="agua" value="malo"> Mala — se va seguido</label>
+          <label class="opcion"><input type="radio" name="agua" value="ninguno"> No tiene red municipal</label>
+        </div>
+      </div>
+
+      <div class="pregunta">
+        <label>¿El alumbrado público en su calle funciona bien?</label>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="alumbrado" value="bueno"> Sí, está bien</label>
+          <label class="opcion"><input type="radio" name="alumbrado" value="regular"> Hay lámparas fundidas</label>
+          <label class="opcion"><input type="radio" name="alumbrado" value="malo"> No funciona</label>
+        </div>
+      </div>
+
+      <p class="seccion-titulo">Infraestructura</p>
+
+      <div class="pregunta">
+        <label>¿Cómo están las calles de su colonia?</label>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="calles" value="bueno"> Bien — pavimentadas</label>
+          <label class="opcion"><input type="radio" name="calles" value="regular"> Regular — algunos tramos malos</label>
+          <label class="opcion"><input type="radio" name="calles" value="malo"> Malo — baches o terracería</label>
+        </div>
+      </div>
+
+      <p class="seccion-titulo">Evaluación general</p>
+
+      <div class="pregunta">
+        <label>¿Cómo califica el trabajo del gobierno municipal?</label>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="gobierno" value="bien"> Bien — ha respondido</label>
+          <label class="opcion"><input type="radio" name="gobierno" value="regular"> Regular — faltó más</label>
+          <label class="opcion"><input type="radio" name="gobierno" value="mal"> Mal — no atendió lo necesario</label>
+          <label class="opcion"><input type="radio" name="gobierno" value="noopina"> No opina</label>
+        </div>
+      </div>
+
+      <div class="pregunta">
+        <label>¿Qué es lo que más hace falta en su colonia?</label>
+        <textarea name="pendiente" rows="2" placeholder="Escribe lo que diga el vecino..."></textarea>
+      </div>
+
+      <div class="pregunta">
+        <label>¿Tiene algún problema concreto a reportar?</label>
+        <textarea name="reporte" rows="2" placeholder="Ej: lámpara fundida en calle Palermo, fuga de agua..."></textarea>
+      </div>
+
+    </div>
+
+    <button class="btn-guardar" onclick="guardarVisita()">Guardar visita</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+
+    // ── 1. MAPA BASE ─────────────────────────────
+    const map = L.map('mapa').setView([25.715, -100.395], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // ── 2. SECCION 1575 ──────────────────────────
+    const geojsonData = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.38886428668205,25.72081023594067],[-100.3890993568809,25.7210150793779],[-100.38926752870469,25.721083736800608],[-100.38935883305182,25.721212293841212],[-100.39050709488606,25.72171639632561],[-100.39109200778488,25.721973175781507],[-100.39205468319106,25.722395787043077],[-100.39214940497139,25.722420890128692],[-100.39266074018549,25.722556402489218],[-100.39316363399276,25.722736216184142],[-100.39336584142995,25.722808516414062],[-100.39410393166229,25.722738591709955],[-100.39424297473457,25.72275944886997],[-100.39487102544938,25.72270536488857],[-100.39524200281795,25.722661135896924],[-100.39557677664777,25.722541016192178],[-100.39569731825134,25.72249776459288],[-100.39586441640071,25.722473976391726],[-100.39622688702256,25.722308696273707],[-100.39648570505196,25.722190679065235],[-100.39654283185463,25.722181490757098],[-100.39673018530695,25.72215135655306],[-100.39690974431173,25.722145937341587],[-100.39728657247991,25.722253261940306],[-100.3973221242592,25.72226723837036],[-100.39778211194319,25.722448071700637],[-100.3982137668922,25.722617764829078],[-100.39864114301106,25.722785774086155],[-100.39908458611214,25.722960097703524],[-100.39971204573827,25.723206757525606],[-100.39978420515469,25.723235123774963],[-100.40015361952135,25.723461364164407],[-100.40034944927528,25.723581295406206],[-100.40066581746859,25.723775046433836],[-100.40077105237754,25.723839494369514],[-100.40247362139988,25.72501403758473],[-100.40264780705536,25.72513419972026],[-100.40286261164803,25.724531712115695],[-100.40296399308508,25.724247353651787],[-100.40307991723017,25.724037305145785],[-100.40319584098187,25.723827256558636],[-100.40336286186414,25.723624349181115],[-100.40339362995073,25.723586970098797],[-100.40357016311222,25.723372505518462],[-100.40389315907194,25.723421369350614],[-100.40424272417697,25.723632382815687],[-100.40507687276882,25.72444158022218],[-100.40837267091119,25.720393828224935],[-100.41598034425323,25.70890199998582],[-100.41525704956992,25.70861877776303],[-100.41470965760335,25.708537428721797],[-100.41401771677096,25.708177080059087],[-100.41337074314308,25.707754200203574],[-100.41185031775699,25.707592623563382],[-100.41147541136885,25.707229384325395],[-100.41142407175393,25.707179642151765],[-100.41140830619746,25.707156724574634],[-100.41127145152163,25.70695778552113],[-100.41099753249708,25.706559600130326],[-100.41081452002203,25.70614596792159],[-100.41038781076874,25.705401688166106],[-100.41014464068881,25.705216226366122],[-100.40987978818339,25.705012836467862],[-100.40961635858257,25.7047945176892],[-100.40935292993935,25.70457619838762],[-100.39692795120527,25.717045850627738],[-100.39687325110499,25.717247957536717],[-100.39638058541074,25.717317383396278],[-100.39610453541322,25.71736939211128],[-100.39605222417487,25.717405944879403],[-100.39560725994053,25.717716864480497],[-100.39520643299247,25.717996940575713],[-100.39502726871766,25.7180897891467],[-100.3947194137898,25.71834153500947],[-100.39449163376382,25.718527799197474],[-100.39443757424613,25.718205552480764],[-100.39370015123923,25.71787465387522],[-100.3938228517868,25.71813618687844],[-100.39394555289488,25.71839771974696],[-100.39360054485289,25.71831988173122],[-100.39321306818943,25.718243011767594],[-100.39312577263995,25.718225693391062],[-100.39112505299593,25.71860552798048],[-100.39103983367167,25.718774004828397],[-100.3909497063728,25.718845558811175],[-100.39068562107342,25.718902123431217],[-100.3904403414282,25.719051251704293],[-100.38993548483032,25.719358198488855],[-100.38944405603186,25.71965697819993],[-100.38895262473103,25.719955756342763],[-100.38891476741816,25.71997877252956],[-100.38882047995568,25.72002786782068],[-100.38873118159611,25.72011684057208],[-100.38875837381504,25.720431799910404],[-100.3887643732654,25.720587429097478],[-100.38886428668205,25.72081023594067]]]},"properties":{"SECCION":1575,"MUNICIPIO":40,"DISTRITO_L":3}}]};
+
+    const capa = L.geoJSON(geojsonData, {
+      style: {
+        color: '#1D9E75',
+        weight: 3,
+        fillColor: '#1D9E75',
+        fillOpacity: 0.15
+      }
+    }).addTo(map);
+
+    map.fitBounds(capa.getBounds());
+
+    // ── 3. GPS DEL OPERADOR ──────────────────────
+    const statusEl = document.getElementById('gps-status');
+    let posActual = null;
+
+    const puntoOperador = L.circleMarker([0,0], {
+      color: '#1a6fc4', fillColor: '#4a9eff',
+      fillOpacity: 1, radius: 10, weight: 3
+    });
+
+    const circuloPrecision = L.circle([0,0], {
+      color: '#4a9eff', fillColor: '#4a9eff',
+      fillOpacity: 0.1, weight: 1, radius: 0
+    });
+
+    if (!navigator.geolocation) {
+      statusEl.textContent = 'Sin GPS';
+      statusEl.className = 'error';
+    } else {
+      navigator.geolocation.watchPosition(
+        function(pos) {
+          posActual = pos;
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const precision = pos.coords.accuracy;
+
+          puntoOperador.setLatLng([lat, lng]);
+          circuloPrecision.setLatLng([lat, lng]);
+          circuloPrecision.setRadius(precision);
+
+          if (!map.hasLayer(puntoOperador)) {
+            puntoOperador.addTo(map);
+            circuloPrecision.addTo(map);
+          }
+
+          statusEl.textContent = 'GPS +/-' + Math.round(precision) + 'm';
+          statusEl.className = 'activo';
+        },
+        function(err) {
+          const mensajes = { 1:'Permiso denegado', 2:'GPS no disponible', 3:'GPS timeout' };
+          statusEl.textContent = mensajes[err.code] || 'Error GPS';
+          statusEl.className = 'error';
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+      );
+    }
+
+    // ── 4. FORMULARIO DE VISITA ──────────────────
+    let latVisita = null;
+    let lngVisita = null;
+    let visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
+    let marcadores = [];
+
+    // Actualizar contador
+    function actualizarContador() {
+      document.getElementById('contador').textContent = visitas.length + ' visita' + (visitas.length !== 1 ? 's' : '');
+    }
+    actualizarContador();
+
+    // Dibujar visitas guardadas al cargar
+    visitas.forEach(function(v) {
+      dibujarPin(v.lat, v.lng, v.gobierno);
+    });
+
+    // Toque en el mapa — abrir formulario
+    map.on('click', function(e) {
+      latVisita = e.latlng.lat;
+      lngVisita = e.latlng.lng;
+
+      document.getElementById('panel-coords').textContent =
+        'Lat: ' + latVisita.toFixed(6) + ' · Lng: ' + lngVisita.toFixed(6);
+
+      // Limpiar formulario
+      document.querySelectorAll('input[type="radio"]').forEach(function(r) { r.checked = false; });
+      document.querySelectorAll('textarea').forEach(function(t) { t.value = ''; });
+
+      // Ocultar instruccion
+      document.getElementById('instruccion').style.display = 'none';
+
+      // Mostrar panel
+      document.getElementById('panel').classList.add('visible');
+    });
+
+    function cerrarPanel() {
+      document.getElementById('panel').classList.remove('visible');
+    }
+
+    function guardarVisita() {
+      // Recopilar respuestas
+      const agua      = document.querySelector('input[name="agua"]:checked');
+      const alumbrado = document.querySelector('input[name="alumbrado"]:checked');
+      const calles    = document.querySelector('input[name="calles"]:checked');
+      const gobierno  = document.querySelector('input[name="gobierno"]:checked');
+      const pendiente = document.querySelector('textarea[name="pendiente"]').value;
+      const reporte   = document.querySelector('textarea[name="reporte"]').value;
+
+      const visita = {
+        id: Date.now(),
+        lat: latVisita,
+        lng: lngVisita,
+        hora: new Date().toLocaleTimeString('es-MX'),
+        agua:      agua      ? agua.value      : '',
+        alumbrado: alumbrado ? alumbrado.value : '',
+        calles:    calles    ? calles.value    : '',
+        gobierno:  gobierno  ? gobierno.value  : '',
+        pendiente: pendiente,
+        reporte:   reporte
+      };
+
+      // Guardar en localStorage (funciona sin internet)
+      visitas.push(visita);
+      localStorage.setItem('visitas', JSON.stringify(visitas));
+
+      // Dibujar pin en el mapa
+      dibujarPin(visita.lat, visita.lng, visita.gobierno);
+
+      // Actualizar contador
+      actualizarContador();
+
+      // Cerrar panel
+      cerrarPanel();
+    }
+
+    function dibujarPin(lat, lng, gobierno) {
+      // Color del pin segun evaluacion
+      const colores = {
+        bien:    '#1D9E75',
+        regular: '#e67e22',
+        mal:     '#e74c3c',
+        noopina: '#95a5a6',
+        '':      '#95a5a6'
+      };
+      const color = colores[gobierno] || '#95a5a6';
+
+      const pin = L.circleMarker([lat, lng], {
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.9,
+        radius: 7,
+        weight: 2
+      }).addTo(map);
+
+      pin.bindPopup(
+        '<b>Visita registrada</b><br>' +
+        'Gobierno: ' + (gobierno || 'sin respuesta')
+      );
+
+      marcadores.push(pin);
+    }
+
+  </script>
+</body>
+</html>
