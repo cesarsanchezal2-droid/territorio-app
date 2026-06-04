@@ -39,6 +39,46 @@
       margin-top: 48px;
     }
 
+    /* ── BOTON REGISTRAR ── */
+    #btn-registrar {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1D9E75;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 1500;
+      box-shadow: 0 4px 12px rgba(29,158,117,0.4);
+      white-space: nowrap;
+    }
+    #btn-registrar.visible { display: block; }
+
+    /* ── ALERTA FUERA DE ZONA ── */
+    #alerta-zona {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #c0392b;
+      color: white;
+      border-radius: 25px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 1500;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(192,57,43,0.4);
+    }
+    #alerta-zona.visible { display: block; }
+
     /* ── PANEL FORMULARIO ── */
     #panel {
       display: none;
@@ -54,10 +94,8 @@
     #panel.visible { display: block; }
 
     .panel-handle {
-      width: 36px;
-      height: 4px;
-      background: #ddd;
-      border-radius: 2px;
+      width: 36px; height: 4px;
+      background: #ddd; border-radius: 2px;
       margin: 12px auto 0;
     }
     .panel-header {
@@ -66,125 +104,73 @@
       align-items: center;
       justify-content: space-between;
     }
-    .panel-header h2 {
-      font-size: 15px;
-      font-weight: 500;
-      color: #1a1a2e;
-    }
+    .panel-header h2 { font-size: 15px; font-weight: 500; color: #1a1a2e; }
     .panel-header button {
-      background: none;
-      border: none;
-      font-size: 20px;
-      color: #999;
-      cursor: pointer;
-      padding: 0 4px;
+      background: none; border: none;
+      font-size: 20px; color: #999; cursor: pointer;
     }
     .panel-coords {
-      font-size: 11px;
-      color: #999;
+      font-size: 11px; color: #999;
       padding: 2px 20px 12px;
       border-bottom: 1px solid #f0f0f0;
     }
 
     .seccion-form { padding: 0 20px; }
     .seccion-titulo {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #999;
-      margin: 16px 0 8px;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #999; margin: 16px 0 8px;
     }
     .pregunta { margin-bottom: 14px; }
     .pregunta label {
-      font-size: 13px;
-      font-weight: 500;
-      color: #1a1a2e;
-      display: block;
-      margin-bottom: 8px;
+      font-size: 13px; font-weight: 500;
+      color: #1a1a2e; display: block; margin-bottom: 8px;
     }
     .opciones { display: flex; flex-direction: column; gap: 6px; }
     .opcion {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #f8f8f8;
-      border: 1.5px solid #eee;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 13px;
-      color: #444;
-      cursor: pointer;
-      transition: all 0.12s;
+      display: flex; align-items: center; gap: 10px;
+      background: #f8f8f8; border: 1.5px solid #eee;
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; color: #444; cursor: pointer;
     }
-    .opcion input[type="radio"],
-    .opcion input[type="checkbox"] {
+    .opcion input[type="radio"] {
       accent-color: #1D9E75;
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
+      width: 16px; height: 16px; flex-shrink: 0;
     }
     .opcion:has(input:checked) {
-      background: #e8f7f2;
-      border-color: #1D9E75;
-      color: #1a1a2e;
-      font-weight: 500;
+      background: #e8f7f2; border-color: #1D9E75;
+      color: #1a1a2e; font-weight: 500;
     }
     textarea {
-      width: 100%;
-      border: 1.5px solid #eee;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 13px;
-      font-family: sans-serif;
-      resize: none;
-      background: #f8f8f8;
-      color: #444;
+      width: 100%; border: 1.5px solid #eee;
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; font-family: sans-serif;
+      resize: none; background: #f8f8f8; color: #444;
       box-sizing: border-box;
     }
-    textarea:focus { outline: none; border-color: #1D9E75; }
 
     .btn-guardar {
       width: calc(100% - 40px);
       margin: 16px 20px 24px;
-      padding: 14px;
-      background: #1D9E75;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
+      padding: 14px; background: #1D9E75;
+      color: white; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 500; cursor: pointer;
     }
-    .btn-guardar:active { background: #178a64; }
 
-    /* ── CONTADOR DE VISITAS ── */
     #contador {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      background: #1a1a2e;
-      color: white;
-      border-radius: 20px;
-      padding: 8px 14px;
-      font-size: 13px;
-      z-index: 1500;
+      position: fixed; bottom: 20px; right: 16px;
+      background: #1a1a2e; color: white;
+      border-radius: 20px; padding: 8px 14px;
+      font-size: 13px; z-index: 1500;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* ── INSTRUCCION ── */
     #instruccion {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
+      position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%);
-      background: rgba(26,26,46,0.85);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      z-index: 1500;
-      white-space: nowrap;
+      background: rgba(26,26,46,0.85); color: white;
+      padding: 8px 16px; border-radius: 20px;
+      font-size: 12px; z-index: 1500; white-space: nowrap;
     }
   </style>
 </head>
@@ -197,11 +183,15 @@
 
   <div id="mapa"></div>
 
-  <div id="instruccion">Toca el mapa para registrar una visita</div>
+  <div id="instruccion">Párate en una casa y toca "Registrar visita"</div>
+
+  <button id="btn-registrar" onclick="abrirFormulario()">📍 Registrar visita aquí</button>
+
+  <div id="alerta-zona">⚠️ Estás fuera de tu zona asignada</div>
 
   <div id="contador">0 visitas</div>
 
-  <!-- ── PANEL FORMULARIO ── -->
+  <!-- PANEL FORMULARIO -->
   <div id="panel">
     <div class="panel-handle"></div>
     <div class="panel-header">
@@ -263,7 +253,7 @@
 
       <div class="pregunta">
         <label>¿Tiene algún problema concreto a reportar?</label>
-        <textarea name="reporte" rows="2" placeholder="Ej: lámpara fundida en calle Palermo, fuga de agua..."></textarea>
+        <textarea name="reporte" rows="2" placeholder="Ej: lámpara fundida, fuga de agua..."></textarea>
       </div>
 
     </div>
@@ -285,17 +275,33 @@
 
     const capa = L.geoJSON(geojsonData, {
       style: {
-        color: '#1D9E75',
-        weight: 3,
-        fillColor: '#1D9E75',
-        fillOpacity: 0.15
+        color: '#1D9E75', weight: 3,
+        fillColor: '#1D9E75', fillOpacity: 0.15
       }
     }).addTo(map);
 
     map.fitBounds(capa.getBounds());
 
+    // Extraer coordenadas del polígono para validación
+    const coordsPoligono = geojsonData.features[0].geometry.coordinates[0];
+
+    // Función para saber si un punto está dentro del polígono
+    function dentroDeSeccion(lat, lng) {
+      let dentro = false;
+      const x = lng, y = lat;
+      for (let i = 0, j = coordsPoligono.length - 1; i < coordsPoligono.length; j = i++) {
+        const xi = coordsPoligono[i][0], yi = coordsPoligono[i][1];
+        const xj = coordsPoligono[j][0], yj = coordsPoligono[j][1];
+        const intersecta = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersecta) dentro = !dentro;
+      }
+      return dentro;
+    }
+
     // ── 3. GPS DEL OPERADOR ──────────────────────
     const statusEl = document.getElementById('gps-status');
+    const btnRegistrar = document.getElementById('btn-registrar');
+    const alertaZona = document.getElementById('alerta-zona');
     let posActual = null;
 
     const puntoOperador = L.circleMarker([0,0], {
@@ -330,6 +336,20 @@
 
           statusEl.textContent = 'GPS +/-' + Math.round(precision) + 'm';
           statusEl.className = 'activo';
+
+          // Verificar si está dentro de la sección
+          const enZona = dentroDeSeccion(lat, lng);
+
+          if (enZona) {
+            btnRegistrar.classList.add('visible');
+            alertaZona.style.display = 'none';
+            document.getElementById('instruccion').style.display = 'none';
+          } else {
+            btnRegistrar.classList.remove('visible');
+            alertaZona.style.display = 'block';
+            alertaZona.className = 'visible';
+            document.getElementById('instruccion').style.display = 'none';
+          }
         },
         function(err) {
           const mensajes = { 1:'Permiso denegado', 2:'GPS no disponible', 3:'GPS timeout' };
@@ -341,47 +361,50 @@
     }
 
     // ── 4. FORMULARIO DE VISITA ──────────────────
-    let latVisita = null;
-    let lngVisita = null;
     let visitas = JSON.parse(localStorage.getItem('visitas') || '[]');
-    let marcadores = [];
 
-    // Actualizar contador
     function actualizarContador() {
-      document.getElementById('contador').textContent = visitas.length + ' visita' + (visitas.length !== 1 ? 's' : '');
+      document.getElementById('contador').textContent =
+        visitas.length + ' visita' + (visitas.length !== 1 ? 's' : '');
     }
     actualizarContador();
 
     // Dibujar visitas guardadas al cargar
-    visitas.forEach(function(v) {
-      dibujarPin(v.lat, v.lng, v.gobierno);
-    });
+    visitas.forEach(function(v) { dibujarPin(v.lat, v.lng, v.gobierno); });
 
-    // Toque en el mapa — abrir formulario
-    map.on('click', function(e) {
-      latVisita = e.latlng.lat;
-      lngVisita = e.latlng.lng;
+    function abrirFormulario() {
+      if (!posActual) {
+        alert('Espera a que el GPS tenga señal');
+        return;
+      }
+
+      const lat = posActual.coords.latitude;
+      const lng = posActual.coords.longitude;
+
+      if (!dentroDeSeccion(lat, lng)) {
+        alert('Estás fuera de tu zona asignada');
+        return;
+      }
 
       document.getElementById('panel-coords').textContent =
-        'Lat: ' + latVisita.toFixed(6) + ' · Lng: ' + lngVisita.toFixed(6);
+        'Lat: ' + lat.toFixed(6) + ' · Lng: ' + lng.toFixed(6);
 
-      // Limpiar formulario
       document.querySelectorAll('input[type="radio"]').forEach(function(r) { r.checked = false; });
       document.querySelectorAll('textarea').forEach(function(t) { t.value = ''; });
 
-      // Ocultar instruccion
-      document.getElementById('instruccion').style.display = 'none';
-
-      // Mostrar panel
       document.getElementById('panel').classList.add('visible');
-    });
+    }
 
     function cerrarPanel() {
       document.getElementById('panel').classList.remove('visible');
     }
 
     function guardarVisita() {
-      // Recopilar respuestas
+      if (!posActual) return;
+
+      const lat = posActual.coords.latitude;
+      const lng = posActual.coords.longitude;
+
       const agua      = document.querySelector('input[name="agua"]:checked');
       const alumbrado = document.querySelector('input[name="alumbrado"]:checked');
       const calles    = document.querySelector('input[name="calles"]:checked');
@@ -391,8 +414,7 @@
 
       const visita = {
         id: Date.now(),
-        lat: latVisita,
-        lng: lngVisita,
+        lat: lat, lng: lng,
         hora: new Date().toLocaleTimeString('es-MX'),
         agua:      agua      ? agua.value      : '',
         alumbrado: alumbrado ? alumbrado.value : '',
@@ -402,45 +424,26 @@
         reporte:   reporte
       };
 
-      // Guardar en localStorage (funciona sin internet)
       visitas.push(visita);
       localStorage.setItem('visitas', JSON.stringify(visitas));
-
-      // Dibujar pin en el mapa
       dibujarPin(visita.lat, visita.lng, visita.gobierno);
-
-      // Actualizar contador
       actualizarContador();
-
-      // Cerrar panel
       cerrarPanel();
     }
 
     function dibujarPin(lat, lng, gobierno) {
-      // Color del pin segun evaluacion
       const colores = {
-        bien:    '#1D9E75',
-        regular: '#e67e22',
-        mal:     '#e74c3c',
-        noopina: '#95a5a6',
-        '':      '#95a5a6'
+        bien: '#1D9E75', regular: '#e67e22',
+        mal: '#e74c3c', noopina: '#95a5a6', '': '#95a5a6'
       };
       const color = colores[gobierno] || '#95a5a6';
 
-      const pin = L.circleMarker([lat, lng], {
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.9,
-        radius: 7,
-        weight: 2
-      }).addTo(map);
-
-      pin.bindPopup(
-        '<b>Visita registrada</b><br>' +
-        'Gobierno: ' + (gobierno || 'sin respuesta')
+      L.circleMarker([lat, lng], {
+        color: color, fillColor: color,
+        fillOpacity: 0.9, radius: 7, weight: 2
+      }).addTo(map).bindPopup(
+        '<b>Visita registrada</b><br>Gobierno: ' + (gobierno || 'sin respuesta')
       );
-
-      marcadores.push(pin);
     }
 
   </script>
