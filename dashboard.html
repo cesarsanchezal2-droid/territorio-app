@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — Territorio App</title>
+  <title>SITM — Dashboard</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,44 +11,45 @@
 
     #header {
       background: #1a1a2e; color: white;
-      padding: 14px 24px; display: flex;
-      align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
       position: fixed; top: 0; left: 0; right: 0;
-      z-index: 1000; height: 52px;
+      z-index: 1000; height: 52px; gap: 16px;
     }
-    #header h1 { font-size: 16px; font-weight: 500; }
-    #header span { font-size: 12px; opacity: 0.6; }
-    #ultima-actualizacion { font-size: 11px; color: #1D9E75; }
+    #header h1 { font-size: 15px; font-weight: 500; white-space: nowrap; }
+    #ultima-actualizacion { font-size: 11px; color: #1D9E75; white-space: nowrap; }
+
+    /* SELECTOR DE SECCIÓN */
+    .sec-tabs { display: flex; gap: 6px; }
+    .sec-tab {
+      font-size: 11px; padding: 5px 12px;
+      border-radius: 99px; border: 1px solid #444;
+      background: transparent; color: #aaa; cursor: pointer;
+      font-family: 'Courier New', monospace; letter-spacing: 0.05em;
+      white-space: nowrap; transition: all 0.15s;
+    }
+    .sec-tab:hover { border-color: #00ff41; color: #00ff41; }
+    .sec-tab.active { background: #00ff41; color: #000; border-color: #00ff41; font-weight: 600; }
 
     .contenido { margin-top: 52px; padding: 16px; }
 
-    /* MÉTRICAS */
     .metricas { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
     @media(max-width:600px){ .metricas { grid-template-columns: repeat(2,1fr); } }
-    .metrica {
-      background: white; border-radius: 12px;
-      padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
+    .metrica { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .metrica-label { font-size: 11px; color: #999; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
     .metrica-valor { font-size: 28px; font-weight: 600; color: #1a1a2e; }
     .metrica-valor.verde { color: #1D9E75; }
     .metrica-valor.naranja { color: #e67e22; }
     .metrica-valor.rojo { color: #e74c3c; }
 
-    /* DOS COLUMNAS */
     .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     @media(max-width:700px){ .dos-col { grid-template-columns: 1fr; } }
 
-    .panel {
-      background: white; border-radius: 12px;
-      padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
+    .panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
     .panel h2 { font-size: 13px; font-weight: 600; color: #1a1a2e; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-    /* MAPA */
     #mapa { width: 100%; height: 320px; border-radius: 8px; overflow: hidden; }
 
-    /* BARRAS */
     .barra-item { margin-bottom: 12px; }
     .barra-label { display: flex; justify-content: space-between; font-size: 12px; color: #555; margin-bottom: 4px; }
     .barra-wrap { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
@@ -61,17 +62,10 @@
     .fill-calles { background: #9b59b6; }
     .fill-alumbrado { background: #f39c12; }
 
-    /* LISTA REPORTES */
-    .reporte-item {
-      padding: 10px 12px; border-radius: 8px;
-      background: #fff8f0; border-left: 3px solid #e67e22;
-      margin-bottom: 8px; font-size: 12px; color: #555; line-height: 1.5;
-    }
-    .reporte-item.urgente { background: #fff0f0; border-color: #e74c3c; }
+    .reporte-item { padding: 10px 12px; border-radius: 8px; background: #fff8f0; border-left: 3px solid #e67e22; margin-bottom: 8px; font-size: 12px; color: #555; line-height: 1.5; }
     .reporte-hora { font-size: 10px; color: #aaa; margin-top: 4px; }
     .sin-reportes { font-size: 13px; color: #aaa; text-align: center; padding: 20px; }
 
-    /* TABLA */
     .tabla-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th { text-align: left; padding: 8px 10px; background: #f8f8f8; color: #999; font-weight: 500; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
@@ -82,8 +76,8 @@
     .badge-mal { background: #fde8e8; color: #e74c3c; }
     .badge-noopina { background: #f0f0f0; color: #999; }
     .badge-vacio { background: #f0f0f0; color: #bbb; }
+    .badge-sec { background: #e8f0fe; color: #1a56db; font-size: 10px; }
 
-    /* BOTÓN ACTUALIZAR */
     #btn-actualizar {
       position: fixed; bottom: 20px; right: 20px;
       background: #1D9E75; color: white; border: none;
@@ -96,13 +90,16 @@
 <body>
 
 <div id="header">
-  <h1>📊 Dashboard — Sección 1575</h1>
+  <h1>📊 SITM · Dashboard</h1>
+  <div class="sec-tabs">
+    <button class="sec-tab active" onclick="cambiarSeccion('todas', this)">Todas</button>
+    <button class="sec-tab" onclick="cambiarSeccion('1575', this)">1575 · Cumbres</button>
+    <button class="sec-tab" onclick="cambiarSeccion('1176', this)">1176 · D6</button>
+  </div>
   <span id="ultima-actualizacion">Cargando...</span>
 </div>
 
 <div class="contenido">
-
-  <!-- MÉTRICAS -->
   <div class="metricas">
     <div class="metrica">
       <p class="metrica-label">Total visitas</p>
@@ -122,7 +119,6 @@
     </div>
   </div>
 
-  <!-- MAPA + GOBIERNO -->
   <div class="dos-col">
     <div class="panel">
       <h2>Mapa de visitas</h2>
@@ -131,13 +127,11 @@
     <div class="panel">
       <h2>Evaluación del gobierno</h2>
       <div id="barras-gobierno"></div>
-
       <h2 style="margin-top:20px;">Problemas más mencionados</h2>
       <div id="barras-problemas"></div>
     </div>
   </div>
 
-  <!-- REPORTES + TABLA -->
   <div class="dos-col">
     <div class="panel">
       <h2>Reportes ciudadanos</h2>
@@ -149,10 +143,10 @@
         <table>
           <thead>
             <tr>
+              <th>Sección</th>
               <th>Hora</th>
               <th>Gobierno</th>
               <th>Agua</th>
-              <th>Calles</th>
             </tr>
           </thead>
           <tbody id="tabla-visitas"></tbody>
@@ -160,7 +154,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <button id="btn-actualizar" onclick="cargarDatos()">↻ Actualizar</button>
@@ -170,57 +163,78 @@
   const SUPABASE_URL = 'https://cwoysuzqiaxdfcadvwog.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_Hp_OvapXSjGbQ485vB1hpg_aqj5yOSm';
 
-  // ── MAPA ─────────────────────────────────────
-  const map = L.map('mapa').setView([25.715, -100.395], 14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+  const SECCIONES_GEO = {
+    '1575': {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.38886428668205,25.72081023594067],[-100.3890993568809,25.7210150793779],[-100.38926752870469,25.721083736800608],[-100.38935883305182,25.721212293841212],[-100.39050709488606,25.72171639632561],[-100.39109200778488,25.721973175781507],[-100.39205468319106,25.722395787043077],[-100.39214940497139,25.722420890128692],[-100.39266074018549,25.722556402489218],[-100.39316363399276,25.722736216184142],[-100.39336584142995,25.722808516414062],[-100.39410393166229,25.722738591709955],[-100.39424297473457,25.72275944886997],[-100.39487102544938,25.72270536488857],[-100.39524200281795,25.722661135896924],[-100.39557677664777,25.722541016192178],[-100.39569731825134,25.72249776459288],[-100.39586441640071,25.722473976391726],[-100.39622688702256,25.722308696273707],[-100.39648570505196,25.722190679065235],[-100.39654283185463,25.722181490757098],[-100.39673018530695,25.72215135655306],[-100.39690974431173,25.722145937341587],[-100.39728657247991,25.722253261940306],[-100.3973221242592,25.72226723837036],[-100.39778211194319,25.722448071700637],[-100.3982137668922,25.722617764829078],[-100.39864114301106,25.722785774086155],[-100.39908458611214,25.722960097703524],[-100.39971204573827,25.723206757525606],[-100.39978420515469,25.723235123774963],[-100.40015361952135,25.723461364164407],[-100.40034944927528,25.723581295406206],[-100.40066581746859,25.723775046433836],[-100.40077105237754,25.723839494369514],[-100.40247362139988,25.72501403758473],[-100.40264780705536,25.72513419972026],[-100.40286261164803,25.724531712115695],[-100.40296399308508,25.724247353651787],[-100.40307991723017,25.724037305145785],[-100.40319584098187,25.723827256558636],[-100.40336286186414,25.723624349181115],[-100.40339362995073,25.723586970098797],[-100.40357016311222,25.723372505518462],[-100.40389315907194,25.723421369350614],[-100.40424272417697,25.723632382815687],[-100.40507687276882,25.72444158022218],[-100.40837267091119,25.720393828224935],[-100.41598034425323,25.70890199998582],[-100.41525704956992,25.70861877776303],[-100.41470965760335,25.708537428721797],[-100.41401771677096,25.708177080059087],[-100.41337074314308,25.707754200203574],[-100.41185031775699,25.707592623563382],[-100.41147541136885,25.707229384325395],[-100.41142407175393,25.707179642151765],[-100.41140830619746,25.707156724574634],[-100.41127145152163,25.70695778552113],[-100.41099753249708,25.706559600130326],[-100.41081452002203,25.70614596792159],[-100.41038781076874,25.705401688166106],[-100.41014464068881,25.705216226366122],[-100.40987978818339,25.705012836467862],[-100.40961635858257,25.7047945176892],[-100.40935292993935,25.70457619838762],[-100.39692795120527,25.717045850627738],[-100.39687325110499,25.717247957536717],[-100.39638058541074,25.717317383396278],[-100.39610453541322,25.71736939211128],[-100.39605222417487,25.717405944879403],[-100.39560725994053,25.717716864480497],[-100.39520643299247,25.717996940575713],[-100.39502726871766,25.7180897891467],[-100.3947194137898,25.71834153500947],[-100.39449163376382,25.718527799197474],[-100.39443757424613,25.718205552480764],[-100.39370015123923,25.71787465387522],[-100.3938228517868,25.71813618687844],[-100.39394555289488,25.71839771974696],[-100.39360054485289,25.71831988173122],[-100.39321306818943,25.718243011767594],[-100.39312577263995,25.718225693391062],[-100.39112505299593,25.71860552798048],[-100.39103983367167,25.718774004828397],[-100.3909497063728,25.718845558811175],[-100.39068562107342,25.718902123431217],[-100.3904403414282,25.719051251704293],[-100.38993548483032,25.719358198488855],[-100.38944405603186,25.71965697819993],[-100.38895262473103,25.719955756342763],[-100.38891476741816,25.71997877252956],[-100.38882047995568,25.72002786782068],[-100.38873118159611,25.72011684057208],[-100.38875837381504,25.720431799910404],[-100.3887643732654,25.720587429097478],[-100.38886428668205,25.72081023594067]]]},"properties":{"SECCION":1575}}]},
+    '1176': {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.31057196525282,25.681931906844735],[-100.31070549198897,25.681099049111374],[-100.31082625027139,25.680195295493583],[-100.31094604156684,25.679289570406805],[-100.31000738621265,25.67918916238513],[-100.30902745592132,25.67908433252127],[-100.30806925165152,25.67899823551596],[-100.30796217561907,25.67988390875154],[-100.30785509831001,25.680769581865352],[-100.30774971313643,25.68164124831739],[-100.30867661150162,25.681740628445283],[-100.3096711572705,25.68184100079954],[-100.31057196525282,25.681931906844735]]]},"properties":{"SECCION":1176}}]}
+  };
 
-  const geojsonData = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.38886428668205,25.72081023594067],[-100.3890993568809,25.7210150793779],[-100.38926752870469,25.721083736800608],[-100.38935883305182,25.721212293841212],[-100.39050709488606,25.72171639632561],[-100.39109200778488,25.721973175781507],[-100.39205468319106,25.722395787043077],[-100.39214940497139,25.722420890128692],[-100.39266074018549,25.722556402489218],[-100.39316363399276,25.722736216184142],[-100.39336584142995,25.722808516414062],[-100.39410393166229,25.722738591709955],[-100.39424297473457,25.72275944886997],[-100.39487102544938,25.72270536488857],[-100.39524200281795,25.722661135896924],[-100.39557677664777,25.722541016192178],[-100.39569731825134,25.72249776459288],[-100.39586441640071,25.722473976391726],[-100.39622688702256,25.722308696273707],[-100.39648570505196,25.722190679065235],[-100.39654283185463,25.722181490757098],[-100.39673018530695,25.72215135655306],[-100.39690974431173,25.722145937341587],[-100.39728657247991,25.722253261940306],[-100.3973221242592,25.72226723837036],[-100.39778211194319,25.722448071700637],[-100.3982137668922,25.722617764829078],[-100.39864114301106,25.722785774086155],[-100.39908458611214,25.722960097703524],[-100.39971204573827,25.723206757525606],[-100.39978420515469,25.723235123774963],[-100.40015361952135,25.723461364164407],[-100.40034944927528,25.723581295406206],[-100.40066581746859,25.723775046433836],[-100.40077105237754,25.723839494369514],[-100.40247362139988,25.72501403758473],[-100.40264780705536,25.72513419972026],[-100.40286261164803,25.724531712115695],[-100.40296399308508,25.724247353651787],[-100.40307991723017,25.724037305145785],[-100.40319584098187,25.723827256558636],[-100.40336286186414,25.723624349181115],[-100.40339362995073,25.723586970098797],[-100.40357016311222,25.723372505518462],[-100.40389315907194,25.723421369350614],[-100.40424272417697,25.723632382815687],[-100.40507687276882,25.72444158022218],[-100.40837267091119,25.720393828224935],[-100.41598034425323,25.70890199998582],[-100.41525704956992,25.70861877776303],[-100.41470965760335,25.708537428721797],[-100.41401771677096,25.708177080059087],[-100.41337074314308,25.707754200203574],[-100.41185031775699,25.707592623563382],[-100.41147541136885,25.707229384325395],[-100.41142407175393,25.707179642151765],[-100.41140830619746,25.707156724574634],[-100.41127145152163,25.70695778552113],[-100.41099753249708,25.706559600130326],[-100.41081452002203,25.70614596792159],[-100.41038781076874,25.705401688166106],[-100.41014464068881,25.705216226366122],[-100.40987978818339,25.705012836467862],[-100.40961635858257,25.7047945176892],[-100.40935292993935,25.70457619838762],[-100.39692795120527,25.717045850627738],[-100.39687325110499,25.717247957536717],[-100.39638058541074,25.717317383396278],[-100.39610453541322,25.71736939211128],[-100.39605222417487,25.717405944879403],[-100.39560725994053,25.717716864480497],[-100.39520643299247,25.717996940575713],[-100.39502726871766,25.7180897891467],[-100.3947194137898,25.71834153500947],[-100.39449163376382,25.718527799197474],[-100.39443757424613,25.718205552480764],[-100.39370015123923,25.71787465387522],[-100.3938228517868,25.71813618687844],[-100.39394555289488,25.71839771974696],[-100.39360054485289,25.71831988173122],[-100.39321306818943,25.718243011767594],[-100.39312577263995,25.718225693391062],[-100.39112505299593,25.71860552798048],[-100.39103983367167,25.718774004828397],[-100.3909497063728,25.718845558811175],[-100.39068562107342,25.718902123431217],[-100.3904403414282,25.719051251704293],[-100.38993548483032,25.719358198488855],[-100.38944405603186,25.71965697819993],[-100.38895262473103,25.719955756342763],[-100.38891476741816,25.71997877252956],[-100.38882047995568,25.72002786782068],[-100.38873118159611,25.72011684057208],[-100.38875837381504,25.720431799910404],[-100.3887643732654,25.720587429097478],[-100.38886428668205,25.72081023594067]]]},"properties":{"SECCION":1575}}]};
+  const map = L.map('mapa').setView([25.715, -100.395], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-  const capa = L.geoJSON(geojsonData, {
-    style: { color: '#1D9E75', weight: 2, fillColor: '#1D9E75', fillOpacity: 0.1 }
-  }).addTo(map);
-  map.fitBounds(capa.getBounds());
+  // Dibujar ambas secciones en el mapa siempre
+  const coloresSec = { '1575': '#1D9E75', '1176': '#3498db' };
+  Object.keys(SECCIONES_GEO).forEach(function(id) {
+    L.geoJSON(SECCIONES_GEO[id], {
+      style: { color: coloresSec[id], weight: 2, fillColor: coloresSec[id], fillOpacity: 0.08 }
+    }).addTo(map).bindTooltip('Sección ' + id, { permanent: true, direction: 'center', className: 'sec-label' });
+  });
 
   let marcadores = [];
+  let todasLasVisitas = [];
+  let seccionFiltro = 'todas';
 
-  // ── CARGAR DATOS ─────────────────────────────
   async function cargarDatos() {
     document.getElementById('ultima-actualizacion').textContent = 'Actualizando...';
-
     try {
       const res = await fetch(SUPABASE_URL + '/rest/v1/visitas?select=*&order=created_at.desc', {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        }
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
       });
-
-      if (!res.ok) throw new Error('Error al cargar');
-      const visitas = await res.json();
-
-      renderMetricas(visitas);
-      renderMapa(visitas);
-      renderGobierno(visitas);
-      renderProblemas(visitas);
-      renderReportes(visitas);
-      renderTabla(visitas);
-
+      if (!res.ok) throw new Error();
+      todasLasVisitas = await res.json();
+      renderTodo();
       const ahora = new Date().toLocaleTimeString('es-MX');
       document.getElementById('ultima-actualizacion').textContent = 'Actualizado ' + ahora;
-
     } catch(e) {
-      document.getElementById('ultima-actualizacion').textContent = 'Error al cargar datos';
+      document.getElementById('ultima-actualizacion').textContent = 'Error al cargar';
     }
+  }
+
+  function filtrarVisitas() {
+    if (seccionFiltro === 'todas') return todasLasVisitas;
+    return todasLasVisitas.filter(function(v) { return String(v.seccion) === seccionFiltro; });
+  }
+
+  function renderTodo() {
+    const visitas = filtrarVisitas();
+    renderMetricas(visitas);
+    renderMapa(visitas);
+    renderGobierno(visitas);
+    renderProblemas(visitas);
+    renderReportes(visitas);
+    renderTabla(visitas);
+  }
+
+  function cambiarSeccion(id, btn) {
+    seccionFiltro = id;
+    document.querySelectorAll('.sec-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    // Centrar mapa según selección
+    if (id !== 'todas' && SECCIONES_GEO[id]) {
+      const capa = L.geoJSON(SECCIONES_GEO[id]);
+      map.fitBounds(capa.getBounds());
+    } else {
+      map.setView([25.715, -100.395], 12);
+    }
+
+    renderTodo();
   }
 
   function renderMetricas(visitas) {
     const total = visitas.length;
-    const bien = visitas.filter(v => v.gobierno === 'bien').length;
-    const mal = visitas.filter(v => v.gobierno === 'mal').length;
-    const reportes = visitas.filter(v => v.reporte && v.reporte.trim() !== '').length;
-
+    const bien = visitas.filter(function(v) { return v.gobierno === 'bien'; }).length;
+    const mal = visitas.filter(function(v) { return v.gobierno === 'mal'; }).length;
+    const reportes = visitas.filter(function(v) { return v.reporte && v.reporte.trim() !== ''; }).length;
     document.getElementById('m-total').textContent = total;
     document.getElementById('m-bien').textContent = bien + (total ? ' (' + Math.round(bien/total*100) + '%)' : '');
     document.getElementById('m-mal').textContent = mal + (total ? ' (' + Math.round(mal/total*100) + '%)' : '');
@@ -238,77 +252,61 @@
         fillColor: colores[v.gobierno] || '#95a5a6',
         fillOpacity: 0.9, radius: 7, weight: 2
       }).addTo(map);
-      m.bindPopup('<b>Gobierno:</b> ' + (v.gobierno || '—') + '<br><b>Agua:</b> ' + (v.agua || '—') + '<br><b>Calles:</b> ' + (v.calles || '—') + (v.reporte ? '<br><b>Reporte:</b> ' + v.reporte : ''));
+      m.bindPopup('<b>Sección ' + (v.seccion || '—') + '</b><br>Gobierno: ' + (v.gobierno || '—') + '<br>Agua: ' + (v.agua || '—') + (v.reporte ? '<br>Reporte: ' + v.reporte : ''));
       marcadores.push(m);
     });
   }
 
   function barra(label, valor, total, clase) {
     const pct = total ? Math.round(valor/total*100) : 0;
-    return '<div class="barra-item">' +
-      '<div class="barra-label"><span>' + label + '</span><span>' + valor + ' (' + pct + '%)</span></div>' +
-      '<div class="barra-wrap"><div class="barra-fill ' + clase + '" style="width:' + pct + '%"></div></div>' +
-      '</div>';
+    return '<div class="barra-item"><div class="barra-label"><span>' + label + '</span><span>' + valor + ' (' + pct + '%)</span></div><div class="barra-wrap"><div class="barra-fill ' + clase + '" style="width:' + pct + '%"></div></div></div>';
   }
 
   function renderGobierno(visitas) {
     const total = visitas.length;
-    const bien = visitas.filter(v => v.gobierno === 'bien').length;
-    const regular = visitas.filter(v => v.gobierno === 'regular').length;
-    const mal = visitas.filter(v => v.gobierno === 'mal').length;
-    const noopina = visitas.filter(v => v.gobierno === 'noopina').length;
     document.getElementById('barras-gobierno').innerHTML =
-      barra('Bien', bien, total, 'fill-verde') +
-      barra('Regular', regular, total, 'fill-naranja') +
-      barra('Mal', mal, total, 'fill-rojo') +
-      barra('No opina', noopina, total, 'fill-gris');
+      barra('Bien', visitas.filter(function(v){return v.gobierno==='bien';}).length, total, 'fill-verde') +
+      barra('Regular', visitas.filter(function(v){return v.gobierno==='regular';}).length, total, 'fill-naranja') +
+      barra('Mal', visitas.filter(function(v){return v.gobierno==='mal';}).length, total, 'fill-rojo') +
+      barra('No opina', visitas.filter(function(v){return v.gobierno==='noopina';}).length, total, 'fill-gris');
   }
 
   function renderProblemas(visitas) {
     const total = visitas.length;
-    const agua = visitas.filter(v => v.agua === 'malo' || v.agua === 'regular').length;
-    const calles = visitas.filter(v => v.calles === 'malo' || v.calles === 'regular').length;
-    const alumbrado = visitas.filter(v => v.alumbrado === 'malo' || v.alumbrado === 'regular').length;
     document.getElementById('barras-problemas').innerHTML =
-      barra('Agua / drenaje', agua, total, 'fill-agua') +
-      barra('Calles / baches', calles, total, 'fill-calles') +
-      barra('Alumbrado', alumbrado, total, 'fill-alumbrado');
+      barra('Agua / drenaje', visitas.filter(function(v){return v.agua==='malo'||v.agua==='regular';}).length, total, 'fill-agua') +
+      barra('Calles / baches', visitas.filter(function(v){return v.calles==='malo'||v.calles==='regular';}).length, total, 'fill-calles') +
+      barra('Alumbrado', visitas.filter(function(v){return v.alumbrado==='malo'||v.alumbrado==='regular';}).length, total, 'fill-alumbrado');
   }
 
   function renderReportes(visitas) {
-    const conReporte = visitas.filter(v => v.reporte && v.reporte.trim() !== '');
+    const conReporte = visitas.filter(function(v) { return v.reporte && v.reporte.trim() !== ''; });
     const el = document.getElementById('lista-reportes');
-    if (conReporte.length === 0) {
-      el.innerHTML = '<p class="sin-reportes">Sin reportes por ahora</p>';
-      return;
-    }
+    if (conReporte.length === 0) { el.innerHTML = '<p class="sin-reportes">Sin reportes por ahora</p>'; return; }
     el.innerHTML = conReporte.map(function(v) {
       const hora = v.created_at ? new Date(v.created_at).toLocaleTimeString('es-MX') : '';
-      return '<div class="reporte-item">' + v.reporte + '<div class="reporte-hora">' + hora + '</div></div>';
+      return '<div class="reporte-item">' + v.reporte + '<div class="reporte-hora">Sec. ' + (v.seccion||'—') + ' · ' + hora + '</div></div>';
     }).join('');
   }
 
   function badgeGobierno(g) {
-    const map = { bien:'badge-bien', regular:'badge-regular', mal:'badge-mal', noopina:'badge-noopina' };
-    return '<span class="badge ' + (map[g] || 'badge-vacio') + '">' + (g || '—') + '</span>';
+    const m = { bien:'badge-bien', regular:'badge-regular', mal:'badge-mal', noopina:'badge-noopina' };
+    return '<span class="badge ' + (m[g] || 'badge-vacio') + '">' + (g || '—') + '</span>';
   }
 
   function renderTabla(visitas) {
     const tbody = document.getElementById('tabla-visitas');
     if (visitas.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">Sin visitas aún</td></tr>';
-      return;
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">Sin visitas</td></tr>'; return;
     }
     tbody.innerHTML = visitas.slice(0, 20).map(function(v) {
       const hora = v.created_at ? new Date(v.created_at).toLocaleTimeString('es-MX') : '—';
-      return '<tr><td>' + hora + '</td><td>' + badgeGobierno(v.gobierno) + '</td><td>' + (v.agua || '—') + '</td><td>' + (v.calles || '—') + '</td></tr>';
+      return '<tr><td><span class="badge badge-sec">' + (v.seccion||'—') + '</span></td><td>' + hora + '</td><td>' + badgeGobierno(v.gobierno) + '</td><td>' + (v.agua||'—') + '</td></tr>';
     }).join('');
   }
 
-  // Cargar al inicio y cada 30 segundos
   cargarDatos();
   setInterval(cargarDatos, 30000);
-
 </script>
 </body>
 </html>
