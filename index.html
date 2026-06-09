@@ -3,11 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Territorio App — Sección 1575</title>
+  <title>SITM — Operador</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: sans-serif; background: #f5f5f5; }
+
+    #selector {
+      position: fixed; inset: 0;
+      background: #1a1a2e;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999; padding: 30px 20px;
+    }
+    #selector h1 {
+      color: #00ff41; font-size: 13px;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 8px; text-align: center;
+    }
+    #selector p {
+      color: #005510; font-size: 11px;
+      letter-spacing: 0.15em; margin-bottom: 40px;
+      font-family: 'Courier New', monospace;
+    }
+    .seccion-btn {
+      width: 100%; max-width: 320px;
+      background: transparent; border: 1px solid #00ff41;
+      color: #00ff41; font-family: 'Courier New', monospace;
+      font-size: 13px; letter-spacing: 0.1em;
+      padding: 16px 20px; cursor: pointer;
+      text-align: left; margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .seccion-btn:hover { background: #00ff41; color: #000; }
+    .seccion-btn .sec-num { font-size: 20px; font-weight: bold; display: block; margin-bottom: 4px; }
+    .seccion-btn .sec-desc { font-size: 11px; opacity: 0.7; }
+
     #header {
       background: #1a1a2e; color: white;
       padding: 12px 20px; display: flex;
@@ -15,14 +47,22 @@
       position: fixed; top: 0; left: 0; right: 0;
       z-index: 1000; height: 48px;
     }
-    #header h1 { font-size: 15px; font-weight: 500; margin: 0; }
+    #header h1 { font-size: 14px; font-weight: 500; margin: 0; }
+    #btn-cambiar {
+      font-size: 11px; color: #00ff41;
+      background: none; border: 1px solid #00ff41;
+      padding: 3px 10px; border-radius: 4px; cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
     #gps-status {
       font-size: 11px; padding: 3px 10px;
       border-radius: 99px; background: #333; color: #aaa; white-space: nowrap;
     }
     #gps-status.activo { background: #1D9E75; color: white; }
     #gps-status.error { background: #c0392b; color: white; }
+
     #mapa { width: 100%; height: calc(100vh - 48px); margin-top: 48px; }
+
     #btn-registrar {
       display: none; position: fixed; bottom: 80px; left: 50%;
       transform: translateX(-50%); background: #1D9E75; color: white;
@@ -31,14 +71,15 @@
       z-index: 1500; box-shadow: 0 4px 12px rgba(29,158,117,0.4); white-space: nowrap;
     }
     #btn-registrar.visible { display: block; }
+
     #alerta-zona {
       display: none; position: fixed; bottom: 80px; left: 50%;
       transform: translateX(-50%); background: #c0392b; color: white;
       border-radius: 25px; padding: 12px 20px; font-size: 13px;
       font-weight: 500; z-index: 1500; white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(192,57,43,0.4);
     }
     #alerta-zona.visible { display: block; }
+
     #panel {
       display: none; position: fixed; bottom: 0; left: 0; right: 0;
       background: white; border-radius: 16px 16px 0 0;
@@ -62,15 +103,33 @@
     textarea { width: 100%; border: 1.5px solid #eee; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: sans-serif; resize: none; background: #f8f8f8; color: #444; box-sizing: border-box; }
     .btn-guardar { width: calc(100% - 40px); margin: 16px 20px 24px; padding: 14px; background: #1D9E75; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; }
     .btn-guardar:disabled { background: #aaa; }
-    #contador { position: fixed; bottom: 20px; right: 16px; background: #1a1a2e; color: white; border-radius: 20px; padding: 8px 14px; font-size: 13px; z-index: 1500; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    #contador { position: fixed; bottom: 20px; right: 16px; background: #1a1a2e; color: white; border-radius: 20px; padding: 8px 14px; font-size: 13px; z-index: 1500; }
     #sync-status { position: fixed; bottom: 20px; left: 16px; font-size: 11px; color: #666; z-index: 1500; }
   </style>
 </head>
 <body>
-  <div id="header">
-    <h1>Territorio App · Sección 1575</h1>
-    <span id="gps-status">GPS...</span>
+
+  <div id="selector">
+    <h1>▸ SITM · Módulo de Campo</h1>
+    <p>SELECCIONE SU ZONA ASIGNADA</p>
+    <button class="seccion-btn" onclick="seleccionarSeccion('1575')">
+      <span class="sec-num">Sección 1575</span>
+      <span class="sec-desc">Distrito 3 Local · Cumbres · Monterrey</span>
+    </button>
+    <button class="seccion-btn" onclick="seleccionarSeccion('1176')">
+      <span class="sec-num">Sección 1176</span>
+      <span class="sec-desc">Distrito 6 Local · Monterrey</span>
+    </button>
   </div>
+
+  <div id="header" style="display:none">
+    <h1 id="header-titulo">SITM · Operador</h1>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="btn-cambiar" onclick="cambiarSeccion()">⇄ Zona</button>
+      <span id="gps-status">GPS...</span>
+    </div>
+  </div>
+
   <div id="mapa"></div>
   <button id="btn-registrar" onclick="abrirFormulario()">📍 Registrar visita aquí</button>
   <div id="alerta-zona">⚠️ Estás fuera de tu zona</div>
@@ -136,102 +195,97 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // ── SUPABASE CONFIG ──────────────────────────
     const SUPABASE_URL = 'https://cwoysuzqiaxdfcadvwog.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_Hp_OvapXSjGbQ485vB1hpg_aqj5yOSm';
 
-    async function insertarVisita(visita) {
-      try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/visitas', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify(visita)
-        });
-        return res.ok;
-      } catch(e) {
-        return false;
+    const SECCIONES = {
+      '1575': {
+        nombre: 'Sección 1575 · Cumbres',
+        geojson: {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.38886428668205,25.72081023594067],[-100.3890993568809,25.7210150793779],[-100.38926752870469,25.721083736800608],[-100.38935883305182,25.721212293841212],[-100.39050709488606,25.72171639632561],[-100.39109200778488,25.721973175781507],[-100.39205468319106,25.722395787043077],[-100.39214940497139,25.722420890128692],[-100.39266074018549,25.722556402489218],[-100.39316363399276,25.722736216184142],[-100.39336584142995,25.722808516414062],[-100.39410393166229,25.722738591709955],[-100.39424297473457,25.72275944886997],[-100.39487102544938,25.72270536488857],[-100.39524200281795,25.722661135896924],[-100.39557677664777,25.722541016192178],[-100.39569731825134,25.72249776459288],[-100.39586441640071,25.722473976391726],[-100.39622688702256,25.722308696273707],[-100.39648570505196,25.722190679065235],[-100.39654283185463,25.722181490757098],[-100.39673018530695,25.72215135655306],[-100.39690974431173,25.722145937341587],[-100.39728657247991,25.722253261940306],[-100.3973221242592,25.72226723837036],[-100.39778211194319,25.722448071700637],[-100.3982137668922,25.722617764829078],[-100.39864114301106,25.722785774086155],[-100.39908458611214,25.722960097703524],[-100.39971204573827,25.723206757525606],[-100.39978420515469,25.723235123774963],[-100.40015361952135,25.723461364164407],[-100.40034944927528,25.723581295406206],[-100.40066581746859,25.723775046433836],[-100.40077105237754,25.723839494369514],[-100.40247362139988,25.72501403758473],[-100.40264780705536,25.72513419972026],[-100.40286261164803,25.724531712115695],[-100.40296399308508,25.724247353651787],[-100.40307991723017,25.724037305145785],[-100.40319584098187,25.723827256558636],[-100.40336286186414,25.723624349181115],[-100.40339362995073,25.723586970098797],[-100.40357016311222,25.723372505518462],[-100.40389315907194,25.723421369350614],[-100.40424272417697,25.723632382815687],[-100.40507687276882,25.72444158022218],[-100.40837267091119,25.720393828224935],[-100.41598034425323,25.70890199998582],[-100.41525704956992,25.70861877776303],[-100.41470965760335,25.708537428721797],[-100.41401771677096,25.708177080059087],[-100.41337074314308,25.707754200203574],[-100.41185031775699,25.707592623563382],[-100.41147541136885,25.707229384325395],[-100.41142407175393,25.707179642151765],[-100.41140830619746,25.707156724574634],[-100.41127145152163,25.70695778552113],[-100.41099753249708,25.706559600130326],[-100.41081452002203,25.70614596792159],[-100.41038781076874,25.705401688166106],[-100.41014464068881,25.705216226366122],[-100.40987978818339,25.705012836467862],[-100.40961635858257,25.7047945176892],[-100.40935292993935,25.70457619838762],[-100.39692795120527,25.717045850627738],[-100.39687325110499,25.717247957536717],[-100.39638058541074,25.717317383396278],[-100.39610453541322,25.71736939211128],[-100.39605222417487,25.717405944879403],[-100.39560725994053,25.717716864480497],[-100.39520643299247,25.717996940575713],[-100.39502726871766,25.7180897891467],[-100.3947194137898,25.71834153500947],[-100.39449163376382,25.718527799197474],[-100.39443757424613,25.718205552480764],[-100.39370015123923,25.71787465387522],[-100.3938228517868,25.71813618687844],[-100.39394555289488,25.71839771974696],[-100.39360054485289,25.71831988173122],[-100.39321306818943,25.718243011767594],[-100.39312577263995,25.718225693391062],[-100.39112505299593,25.71860552798048],[-100.39103983367167,25.718774004828397],[-100.3909497063728,25.718845558811175],[-100.39068562107342,25.718902123431217],[-100.3904403414282,25.719051251704293],[-100.38993548483032,25.719358198488855],[-100.38944405603186,25.71965697819993],[-100.38895262473103,25.719955756342763],[-100.38891476741816,25.71997877252956],[-100.38882047995568,25.72002786782068],[-100.38873118159611,25.72011684057208],[-100.38875837381504,25.720431799910404],[-100.3887643732654,25.720587429097478],[-100.38886428668205,25.72081023594067]]]},"properties":{"SECCION":1575}}]}
+      },
+      '1176': {
+        nombre: 'Sección 1176 · Distrito 6',
+        geojson: {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.31057196525282,25.681931906844735],[-100.31070549198897,25.681099049111374],[-100.31082625027139,25.680195295493583],[-100.31094604156684,25.679289570406805],[-100.31000738621265,25.67918916238513],[-100.30902745592132,25.67908433252127],[-100.30806925165152,25.67899823551596],[-100.30796217561907,25.67988390875154],[-100.30785509831001,25.680769581865352],[-100.30774971313643,25.68164124831739],[-100.30867661150162,25.681740628445283],[-100.3096711572705,25.68184100079954],[-100.31057196525282,25.681931906844735]]]},"properties":{"SECCION":1176}}]}
       }
+    };
+
+    let seccionActual = null;
+    let capaSeccion = null;
+    let posActual = null;
+    let visitasLocales = [];
+    let map = null;
+    let puntoOperador = null;
+    let circuloPrecision = null;
+
+    function seleccionarSeccion(id) {
+      seccionActual = id;
+      document.getElementById('selector').style.display = 'none';
+      document.getElementById('header').style.display = 'flex';
+      document.getElementById('header-titulo').textContent = 'SITM · ' + SECCIONES[id].nombre;
+      if (!map) inicializarMapa();
+      cargarSeccion(id);
+      cargarVisitasRemotas(id);
+      visitasLocales = JSON.parse(localStorage.getItem('visitas_' + id) || '[]');
+      actualizarContador();
     }
 
-    async function cargarVisitasRemotas() {
-      try {
-        const res = await fetch(SUPABASE_URL + '/rest/v1/visitas?select=*', {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY
-          }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          data.forEach(function(v) { dibujarPin(v.lat, v.lng, v.gobierno); });
-          document.getElementById('contador').textContent =
-            data.length + ' visita' + (data.length !== 1 ? 's' : '');
-        }
-      } catch(e) {}
+    function cambiarSeccion() {
+      document.getElementById('selector').style.display = 'flex';
+      document.getElementById('header').style.display = 'none';
+      if (capaSeccion) { map.removeLayer(capaSeccion); capaSeccion = null; }
     }
 
-    // ── MAPA BASE ────────────────────────────────
-    const map = L.map('mapa').setView([25.715, -100.395], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+    function inicializarMapa() {
+      map = L.map('mapa').setView([25.715, -100.395], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+      puntoOperador = L.circleMarker([0,0], {
+        color: '#1a6fc4', fillColor: '#4a9eff', fillOpacity: 1, radius: 10, weight: 3
+      });
+      circuloPrecision = L.circle([0,0], {
+        color: '#4a9eff', fillColor: '#4a9eff', fillOpacity: 0.1, weight: 1, radius: 0
+      });
+      iniciarGPS();
+    }
 
-    // ── SECCION 1575 ─────────────────────────────
-    const geojsonData = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-100.38886428668205,25.72081023594067],[-100.3890993568809,25.7210150793779],[-100.38926752870469,25.721083736800608],[-100.38935883305182,25.721212293841212],[-100.39050709488606,25.72171639632561],[-100.39109200778488,25.721973175781507],[-100.39205468319106,25.722395787043077],[-100.39214940497139,25.722420890128692],[-100.39266074018549,25.722556402489218],[-100.39316363399276,25.722736216184142],[-100.39336584142995,25.722808516414062],[-100.39410393166229,25.722738591709955],[-100.39424297473457,25.72275944886997],[-100.39487102544938,25.72270536488857],[-100.39524200281795,25.722661135896924],[-100.39557677664777,25.722541016192178],[-100.39569731825134,25.72249776459288],[-100.39586441640071,25.722473976391726],[-100.39622688702256,25.722308696273707],[-100.39648570505196,25.722190679065235],[-100.39654283185463,25.722181490757098],[-100.39673018530695,25.72215135655306],[-100.39690974431173,25.722145937341587],[-100.39728657247991,25.722253261940306],[-100.3973221242592,25.72226723837036],[-100.39778211194319,25.722448071700637],[-100.3982137668922,25.722617764829078],[-100.39864114301106,25.722785774086155],[-100.39908458611214,25.722960097703524],[-100.39971204573827,25.723206757525606],[-100.39978420515469,25.723235123774963],[-100.40015361952135,25.723461364164407],[-100.40034944927528,25.723581295406206],[-100.40066581746859,25.723775046433836],[-100.40077105237754,25.723839494369514],[-100.40247362139988,25.72501403758473],[-100.40264780705536,25.72513419972026],[-100.40286261164803,25.724531712115695],[-100.40296399308508,25.724247353651787],[-100.40307991723017,25.724037305145785],[-100.40319584098187,25.723827256558636],[-100.40336286186414,25.723624349181115],[-100.40339362995073,25.723586970098797],[-100.40357016311222,25.723372505518462],[-100.40389315907194,25.723421369350614],[-100.40424272417697,25.723632382815687],[-100.40507687276882,25.72444158022218],[-100.40837267091119,25.720393828224935],[-100.41598034425323,25.70890199998582],[-100.41525704956992,25.70861877776303],[-100.41470965760335,25.708537428721797],[-100.41401771677096,25.708177080059087],[-100.41337074314308,25.707754200203574],[-100.41185031775699,25.707592623563382],[-100.41147541136885,25.707229384325395],[-100.41142407175393,25.707179642151765],[-100.41140830619746,25.707156724574634],[-100.41127145152163,25.70695778552113],[-100.41099753249708,25.706559600130326],[-100.41081452002203,25.70614596792159],[-100.41038781076874,25.705401688166106],[-100.41014464068881,25.705216226366122],[-100.40987978818339,25.705012836467862],[-100.40961635858257,25.7047945176892],[-100.40935292993935,25.70457619838762],[-100.39692795120527,25.717045850627738],[-100.39687325110499,25.717247957536717],[-100.39638058541074,25.717317383396278],[-100.39610453541322,25.71736939211128],[-100.39605222417487,25.717405944879403],[-100.39560725994053,25.717716864480497],[-100.39520643299247,25.717996940575713],[-100.39502726871766,25.7180897891467],[-100.3947194137898,25.71834153500947],[-100.39449163376382,25.718527799197474],[-100.39443757424613,25.718205552480764],[-100.39370015123923,25.71787465387522],[-100.3938228517868,25.71813618687844],[-100.39394555289488,25.71839771974696],[-100.39360054485289,25.71831988173122],[-100.39321306818943,25.718243011767594],[-100.39312577263995,25.718225693391062],[-100.39112505299593,25.71860552798048],[-100.39103983367167,25.718774004828397],[-100.3909497063728,25.718845558811175],[-100.39068562107342,25.718902123431217],[-100.3904403414282,25.719051251704293],[-100.38993548483032,25.719358198488855],[-100.38944405603186,25.71965697819993],[-100.38895262473103,25.719955756342763],[-100.38891476741816,25.71997877252956],[-100.38882047995568,25.72002786782068],[-100.38873118159611,25.72011684057208],[-100.38875837381504,25.720431799910404],[-100.3887643732654,25.720587429097478],[-100.38886428668205,25.72081023594067]]]},"properties":{"SECCION":1575,"MUNICIPIO":40,"DISTRITO_L":3}}]};
+    function cargarSeccion(id) {
+      if (capaSeccion) map.removeLayer(capaSeccion);
+      capaSeccion = L.geoJSON(SECCIONES[id].geojson, {
+        style: { color: '#00ff41', weight: 3, fillColor: '#00ff41', fillOpacity: 0.1 }
+      }).addTo(map);
+      map.fitBounds(capaSeccion.getBounds());
+    }
 
-    const capa = L.geoJSON(geojsonData, {
-      style: { color: '#1D9E75', weight: 3, fillColor: '#1D9E75', fillOpacity: 0.15 }
-    }).addTo(map);
-    map.fitBounds(capa.getBounds());
-
-    const coordsPoligono = geojsonData.features[0].geometry.coordinates[0];
     function dentroDeSeccion(lat, lng) {
+      const coords = SECCIONES[seccionActual].geojson.features[0].geometry.coordinates[0];
       let dentro = false;
       const x = lng, y = lat;
-      for (let i = 0, j = coordsPoligono.length - 1; i < coordsPoligono.length; j = i++) {
-        const xi = coordsPoligono[i][0], yi = coordsPoligono[i][1];
-        const xj = coordsPoligono[j][0], yj = coordsPoligono[j][1];
+      for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+        const xi = coords[i][0], yi = coords[i][1];
+        const xj = coords[j][0], yj = coords[j][1];
         if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) dentro = !dentro;
       }
       return dentro;
     }
 
-    // ── GPS ──────────────────────────────────────
-    const statusEl = document.getElementById('gps-status');
-    const btnRegistrar = document.getElementById('btn-registrar');
-    const alertaZona = document.getElementById('alerta-zona');
-    let posActual = null;
-
-    const puntoOperador = L.circleMarker([0,0], {
-      color: '#1a6fc4', fillColor: '#4a9eff', fillOpacity: 1, radius: 10, weight: 3
-    });
-    const circuloPrecision = L.circle([0,0], {
-      color: '#4a9eff', fillColor: '#4a9eff', fillOpacity: 0.1, weight: 1, radius: 0
-    });
-
-    if (!navigator.geolocation) {
-      statusEl.textContent = 'Sin GPS'; statusEl.className = 'error';
-    } else {
+    function iniciarGPS() {
+      const statusEl = document.getElementById('gps-status');
+      const btnRegistrar = document.getElementById('btn-registrar');
+      const alertaZona = document.getElementById('alerta-zona');
+      if (!navigator.geolocation) { statusEl.textContent = 'Sin GPS'; statusEl.className = 'error'; return; }
       navigator.geolocation.watchPosition(function(pos) {
         posActual = pos;
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const precision = pos.coords.accuracy;
-
         puntoOperador.setLatLng([lat, lng]);
         circuloPrecision.setLatLng([lat, lng]);
         circuloPrecision.setRadius(precision);
         if (!map.hasLayer(puntoOperador)) { puntoOperador.addTo(map); circuloPrecision.addTo(map); }
-
         statusEl.textContent = 'GPS +/-' + Math.round(precision) + 'm';
         statusEl.className = 'activo';
-
-        if (dentroDeSeccion(lat, lng)) {
+        if (seccionActual && dentroDeSeccion(lat, lng)) {
           btnRegistrar.classList.add('visible');
           alertaZona.style.display = 'none';
         } else {
@@ -245,11 +299,21 @@
       }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
     }
 
-    // ── FORMULARIO ───────────────────────────────
-    let visitasLocales = JSON.parse(localStorage.getItem('visitas') || '[]');
+    async function cargarVisitasRemotas(seccionId) {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/visitas?select=*&seccion=eq.' + seccionId, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          data.forEach(function(v) { dibujarPin(v.lat, v.lng, v.gobierno); });
+        }
+      } catch(e) {}
+    }
 
-    function actualizarContador(n) {
-      document.getElementById('contador').textContent = n + ' visita' + (n !== 1 ? 's' : '');
+    function actualizarContador() {
+      document.getElementById('contador').textContent =
+        visitasLocales.length + ' visita' + (visitasLocales.length !== 1 ? 's' : '');
     }
 
     function abrirFormulario() {
@@ -270,10 +334,9 @@
     async function guardarVisita() {
       if (!posActual) return;
       const btn = document.getElementById('btn-guardar');
-      btn.disabled = true;
-      btn.textContent = 'Guardando...';
-
+      btn.disabled = true; btn.textContent = 'Guardando...';
       const visita = {
+        seccion: seccionActual,
         lat: posActual.coords.latitude,
         lng: posActual.coords.longitude,
         agua:      (document.querySelector('input[name="agua"]:checked')      || {}).value || '',
@@ -283,26 +346,32 @@
         pendiente: document.querySelector('textarea[name="pendiente"]').value,
         reporte:   document.querySelector('textarea[name="reporte"]').value
       };
-
-      // Guardar local siempre
       visitasLocales.push(visita);
-      localStorage.setItem('visitas', JSON.stringify(visitasLocales));
+      localStorage.setItem('visitas_' + seccionActual, JSON.stringify(visitasLocales));
       dibujarPin(visita.lat, visita.lng, visita.gobierno);
-
-      // Intentar subir a Supabase
+      actualizarContador();
       const syncEl = document.getElementById('sync-status');
       const ok = await insertarVisita(visita);
-      if (ok) {
-        syncEl.textContent = '✓ Sincronizado';
-        syncEl.style.color = '#1D9E75';
-      } else {
-        syncEl.textContent = '⚠ Guardado local (sin internet)';
-        syncEl.style.color = '#e67e22';
-      }
+      syncEl.textContent = ok ? '✓ Sincronizado' : '⚠ Guardado local';
+      syncEl.style.color = ok ? '#1D9E75' : '#e67e22';
       setTimeout(function() { syncEl.textContent = ''; }, 3000);
-
-      actualizarContador(visitasLocales.length);
       cerrarPanel();
+    }
+
+    async function insertarVisita(visita) {
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/visitas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(visita)
+        });
+        return res.ok;
+      } catch(e) { return false; }
     }
 
     function dibujarPin(lat, lng, gobierno) {
@@ -311,11 +380,8 @@
         color: colores[gobierno] || '#95a5a6',
         fillColor: colores[gobierno] || '#95a5a6',
         fillOpacity: 0.9, radius: 7, weight: 2
-      }).addTo(map).bindPopup('<b>Visita</b><br>Gobierno: ' + (gobierno || 'sin respuesta'));
+      }).addTo(map).bindPopup('<b>Visita</b><br>Gobierno: ' + (gobierno || '—'));
     }
-
-    // Cargar visitas remotas al iniciar
-    cargarVisitasRemotas();
 
   </script>
 </body>
